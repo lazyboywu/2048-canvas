@@ -59,12 +59,12 @@ CanvasRenderer.prototype.drawTile = function (canvasTile) {
   // 保存当前配置
   ctx.save();
 
-  //
-
+  // 透明度
   if (canvasTile.opacity != 100) {
     ctx.globalAlpha = canvasTile.opacity / 100;
   }
 
+  // 缩放
   if (canvasTile.scale != 100) {
     var scale = canvasTile.scale / 100;
     var originX = canvasTile.x + this.tileSize / 2;
@@ -75,13 +75,34 @@ CanvasRenderer.prototype.drawTile = function (canvasTile) {
     ctx.translate(-originX, -originY);
   }
 
+  // 绘制背景
   ctx.fillStyle = canvasTile.backgroudColor;
+  // 外部阴影
+  ctx.shadowColor = canvasTile.outShadowColor;
+  ctx.shadowBlur = 30;
   ctx.beginPath();
   ctx.roundRect(canvasTile.x, canvasTile.y, this.tileSize, this.tileSize, [
     this.tileBorderRadius,
   ]);
   ctx.fill();
 
+  /* offset-x | offset-y | blur-radius | spread-radius | color */
+  // 0 0 30px 10px rgba(243, 215, 116, 0.47619), inset 0 0 0 1px rgba(255, 255, 255, 0.28571)
+
+  // 内部阴影 1px的线
+  ctx.strokeStyle = canvasTile.inShadowColor;
+  ctx.beginPath();
+  ctx.roundRect(
+    canvasTile.x + 1,
+    canvasTile.y + 1,
+    this.tileSize - 1,
+    this.tileSize - 1,
+    [this.tileBorderRadius]
+  );
+  ctx.lineWithd = 1;
+  ctx.stroke();
+
+  // 绘制文字
   ctx.fillStyle = canvasTile.textColor;
   ctx.font = "bold " + canvasTile.textSize + 'px "ClearSans"';
   ctx.textAlign = "center";
@@ -94,24 +115,6 @@ CanvasRenderer.prototype.drawTile = function (canvasTile) {
 
   // 还原之前的配置
   ctx.restore();
-
-  //   // set stroke & shadow to the same color
-  //   ctx.strokeStyle = color;
-  //   ctx.shadowColor = color;
-  //   // set initial blur of 3px
-  //   ctx.shadowBlur = 3;
-  //   // repeatedly overdraw the blur to make it prominent
-  //   for (var i = 0; i < repeats; i++) {
-  //     // increase the size of blur
-  //     ctx.shadowBlur += 0.25;
-  //     // stroke the rect (which also draws its shadow)
-  //     ctx.strokeRect(x, y, w, h);
-  //   }
-  //   // cancel shadowing by making the shadowColor transparent
-  //   ctx.shadowColor = "rgba(0,0,0,0)";
-  //   // restroke the interior of the rect for a more solid colored center
-  //   ctx.lineWidth = 2;
-  //   ctx.strokeRect(x + 2, y + 2, w - 4, h - 4);
 };
 
 CanvasRenderer.prototype.clearTiles = function () {
@@ -175,6 +178,10 @@ function CanvasTile(tile, tileSize, gridSpacing) {
 
   /** @type {string} 背景色 */
   this.backgroudColor = CanvasTile.calculateBackgroudColor(this.tile.value);
+  /** @type {string} 外部阴影颜色 */
+  this.outShadowColor = CanvasTile.calculateOutShadowColor(this.tile.value);
+  /** @type {string} 内部阴影颜色 */
+  this.inShadowColor = CanvasTile.calculateInShadowColor(this.tile.value);
   /** @type {string} 文本颜色 */
   this.textColor = CanvasTile.calculateTextColor(this.tile.value);
   /** @type {textSize} 文本大小 */
@@ -258,6 +265,22 @@ CanvasTile.calculateBackgroudColor = function (value) {
       .toHexString();
   }
   return mixedBackgroud;
+};
+
+CanvasTile.calculateOutShadowColor = function (value) {
+  var exponentLimit = 11;
+  var exponent = Math.log2(value);
+  var glowOpacity = Math.max(exponent - 4, 0) / (exponentLimit - 4);
+  return tinycolor(CanvasTile.style.titleGoldGlowColor).setAlpha(
+    glowOpacity / 1.8
+  );
+};
+
+CanvasTile.calculateInShadowColor = function (value) {
+  var exponentLimit = 11;
+  var exponent = Math.log2(value);
+  var glowOpacity = Math.max(exponent - 4, 0) / (exponentLimit - 4);
+  return tinycolor("white").setAlpha(glowOpacity / 1.8);
 };
 
 CanvasTile.calculateTextColor = function (value) {

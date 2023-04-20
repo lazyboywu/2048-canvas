@@ -5,14 +5,14 @@ var size = 4;
  * @param {CanvasActuator} actuator
  */
 function drawTile(actuator) {
-  var tile = new Tile({ x: 0, y: 1 }, 4096);
+  var tile = new Tile({ x: 0, y: 1 }, 1024);
   var canvasTile = new CanvasTile(
     tile,
     actuator.canvasRenderer.tileSize,
     actuator.canvasRenderer.gridSpacing
   );
-  canvasTile.opacity = 100;
-  canvasTile.scale = 80;
+  // canvasTile.opacity = 100;
+  // canvasTile.scale = 80;
   actuator.canvasRenderer.drawTile(canvasTile);
 }
 
@@ -96,8 +96,8 @@ var actuator =
     : new HTMLActuator();
 
 document.addEventListener("DOMContentLoaded", () => {
-  //   drawTile(actuator);
+  drawTile(actuator);
   //   runAnimationAppare(actuator);
   // runAnimationMove(actuator);
-  runAnimationPop(actuator);
+  // runAnimationPop(actuator);
 });

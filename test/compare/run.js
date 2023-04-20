@@ -60,13 +60,21 @@ function mergeTile(actuator) {
   }, 2000);
 }
 
-var actuator =
-  typeof CanvasActuator !== "undefined"
-    ? new CanvasActuator()
-    : new HTMLActuator();
+/**
+ *
+ * @param {HTMLActuator | CanvasActuator} actuator
+ */
+function runGame(Actuator) {
+  new GameManager(4, KeyboardInputManager, Actuator, LocalStorageManager);
+}
+
+var Actuator =
+  typeof CanvasActuator !== "undefined" ? CanvasActuator : HTMLActuator;
+var actuator = new Actuator();
 
 document.addEventListener("DOMContentLoaded", () => {
   // rendGrid(actuator);
   // moveTile(actuator);
-  mergeTile(actuator);
+  // mergeTile(actuator);
+  runGame(Actuator);
 });
