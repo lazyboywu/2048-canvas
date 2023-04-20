@@ -1,0 +1,13 @@
+{
+    "compilerOptions": {
+        "typeRoots": ["./typings"],
+      },
+    "typeAcquisition": {
+        "include": [
+            "js/html_actuator.js",
+            "js/grid.js",
+            "js/tile.js",
+            "js/canvas_actuator.js",
+        ]
+    }
+}
